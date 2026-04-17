@@ -49,7 +49,7 @@ func (h *VoteHandler) upsert(c *gin.Context) {
 		return
 	}
 
-	if vote.CreatedAt.Equal(vote.UpdatedAt) {
+	if vote.Created {
 		c.JSON(http.StatusCreated, vote)
 		return
 	}

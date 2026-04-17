@@ -18,6 +18,7 @@ type Vote struct {
 	VoteType  VoteType  `json:"vote_type"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+	Created   bool      `json:"-"`
 }
 
 type UpsertVoteInput struct {

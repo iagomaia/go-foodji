@@ -18,6 +18,12 @@ func NewVoteService(voteRepo repository.VoteRepository, sessionRepo repository.S
 }
 
 func (s *voteService) UpsertVote(ctx context.Context, input domain.UpsertVoteInput) (*domain.Vote, error) {
+	if input.SessionID == "" {
+		return nil, fmt.Errorf("session_id is required: %w", domain.ErrBadRequest)
+	}
+	if input.ProductID == "" {
+		return nil, fmt.Errorf("product_id is required: %w", domain.ErrBadRequest)
+	}
 	if input.VoteType == "" {
 		return nil, fmt.Errorf("vote type is required: %w", domain.ErrBadRequest)
 	}
@@ -36,11 +42,12 @@ func (s *voteService) UpsertVote(ctx context.Context, input domain.UpsertVoteInp
 		VoteType:  input.VoteType,
 	}
 
-	err = s.voteRepo.Upsert(ctx, vote)
+	created, err := s.voteRepo.Upsert(ctx, vote)
 	if err != nil {
 		return nil, fmt.Errorf("upsert vote: %w", err)
 	}
 
+	vote.Created = created
 	return vote, nil
 }
 

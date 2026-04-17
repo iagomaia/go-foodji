@@ -47,12 +47,13 @@ func (r *VoteRepository) EnsureIndexes(ctx context.Context) error {
 	return err
 }
 
-func (r *VoteRepository) Upsert(ctx context.Context, vote *domain.Vote) error {
+func (r *VoteRepository) Upsert(ctx context.Context, vote *domain.Vote) (bool, error) {
 	sessionOID, err := bson.ObjectIDFromHex(vote.SessionID)
 	if err != nil {
-		return fmt.Errorf("invalid session id: %w", err)
+		return false, fmt.Errorf("invalid session id: %w", domain.ErrBadRequest)
 	}
 
+	candidateID := bson.NewObjectID()
 	now := time.Now().UTC()
 	filter := bson.D{{"session_id", sessionOID}, {"product_id", vote.ProductID}}
 	update := bson.D{
@@ -61,27 +62,25 @@ func (r *VoteRepository) Upsert(ctx context.Context, vote *domain.Vote) error {
 			{"updated_at", now},
 		}},
 		{"$setOnInsert", bson.D{
+			{"_id", candidateID},
 			{"session_id", sessionOID},
 			{"product_id", vote.ProductID},
 			{"created_at", now},
 		}},
 	}
 
-	result := r.col.FindOneAndUpdate(ctx, filter, update, options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After))
-	if result.Err() != nil {
-		return fmt.Errorf("upsert vote: %w", err)
+	opts := options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After)
+	var doc voteDocument
+	if err := r.col.FindOneAndUpdate(ctx, filter, update, opts).Decode(&doc); err != nil {
+		return false, fmt.Errorf("upsert vote: %w", err)
 	}
 
-	var doc voteDocument
-	err = result.Decode(&doc)
-	if err != nil {
-		return fmt.Errorf("decode vote: %w", err)
-	}
+	created := doc.ID.Hex() == candidateID.Hex()
 	vote.ID = doc.ID.Hex()
 	vote.CreatedAt = doc.CreatedAt
 	vote.UpdatedAt = doc.UpdatedAt
-	
-	return nil
+
+	return created, nil
 }
 
 func (r *VoteRepository) Get(ctx context.Context, filter *domain.GetVoteFilter) ([]*domain.Vote, error) {

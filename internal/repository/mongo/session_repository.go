@@ -30,7 +30,7 @@ func NewSessionRepository(db *mongo.Database) *SessionRepository {
 func (r *SessionRepository) FindByID(ctx context.Context, id string) (*domain.Session, error) {
 	oid, err := bson.ObjectIDFromHex(id)
 	if err != nil {
-		return nil, domain.ErrNotFound
+		return nil, fmt.Errorf("invalid session id: %w", domain.ErrBadRequest)
 	}
 
 	var doc sessionDocument
@@ -54,7 +54,11 @@ func (r *SessionRepository) Create(ctx context.Context, session *domain.Session)
 		return fmt.Errorf("insert session: %w", err)
 	}
 
-	session.ID = result.InsertedID.(bson.ObjectID).Hex()
+	oid, ok := result.InsertedID.(bson.ObjectID)
+	if !ok {
+		return fmt.Errorf("insert session: unexpected InsertedID type %T", result.InsertedID)
+	}
+	session.ID = oid.Hex()
 	return nil
 }
 

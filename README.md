@@ -114,7 +114,7 @@ Handlers know nothing about MongoDB. Services know nothing about HTTP. Mongo imp
 
 ### Key design decisions
 
-- **Atomic upsert** — `PUT /votes` performs a single `UpdateOne` with `upsert=true` against MongoDB, using `$set` for mutable fields and `$setOnInsert` for immutable ones. No read-before-write.
+- **Atomic upsert** — `PUT /votes` performs a single `FindOneAndUpdate` with `upsert=true` and `ReturnDocument=After` against MongoDB, using `$set` for mutable fields and `$setOnInsert` for immutable ones (including a pre-generated `_id`). No read-before-write. Create vs update is detected by comparing the returned document's `_id` against the pre-generated candidate: a match means the document was just inserted; a mismatch means an existing document was updated and its original `_id` was returned.
 - **Unique compound index** — A unique index on `(session_id, product_id)` is created at startup via `EnsureIndexes`, enforcing the one-vote-per-product-per-session invariant at the database level.
 - **Session gate** — A vote can only be registered if the referenced session exists. The service validates this before calling the repository.
 

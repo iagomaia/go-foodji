@@ -7,13 +7,13 @@ import (
 )
 
 type VoteRepositoryMock struct {
-	UpsertFn        func(ctx context.Context, vote *domain.Vote) error
+	UpsertFn        func(ctx context.Context, vote *domain.Vote) (bool, error)
 	EnsureIndexesFn func(ctx context.Context) error
 	GetFn           func(ctx context.Context, filter *domain.GetVoteFilter) ([]*domain.Vote, error)
 	GetReportFn     func(ctx context.Context) (domain.VoteReportResponse, error)
 }
 
-func (m *VoteRepositoryMock) Upsert(ctx context.Context, vote *domain.Vote) error {
+func (m *VoteRepositoryMock) Upsert(ctx context.Context, vote *domain.Vote) (bool, error) {
 	return m.UpsertFn(ctx, vote)
 }
 

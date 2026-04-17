@@ -22,12 +22,12 @@ func TestUpsertVote_CreatesNewVote(t *testing.T) {
 		},
 	}
 	voteRepo := &mocks.VoteRepositoryMock{
-		UpsertFn: func(ctx context.Context, v *domain.Vote) error {
+		UpsertFn: func(ctx context.Context, v *domain.Vote) (bool, error) {
 			now := time.Now().UTC()
 			v.ID = "vote-1"
 			v.CreatedAt = now
 			v.UpdatedAt = now
-			return nil
+			return true, nil
 		},
 	}
 
@@ -41,7 +41,7 @@ func TestUpsertVote_CreatesNewVote(t *testing.T) {
 	assert.Equal(t, domain.Like, result.VoteType)
 	assert.Equal(t, "s1", result.SessionID)
 	assert.Equal(t, "p1", result.ProductID)
-	assert.True(t, result.CreatedAt.Equal(result.UpdatedAt), "new vote should have equal CreatedAt and UpdatedAt")
+	assert.True(t, result.Created, "new vote should have Created=true")
 }
 
 func TestUpsertVote_UpdatesExistingVote(t *testing.T) {
@@ -51,12 +51,12 @@ func TestUpsertVote_UpdatesExistingVote(t *testing.T) {
 		},
 	}
 	voteRepo := &mocks.VoteRepositoryMock{
-		UpsertFn: func(ctx context.Context, v *domain.Vote) error {
+		UpsertFn: func(ctx context.Context, v *domain.Vote) (bool, error) {
 			now := time.Now().UTC()
 			v.ID = "vote-1"
 			v.CreatedAt = now
 			v.UpdatedAt = now.Add(time.Minute)
-			return nil
+			return false, nil
 		},
 	}
 
@@ -67,6 +67,7 @@ func TestUpsertVote_UpdatesExistingVote(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.Equal(t, domain.Dislike, result.VoteType)
+	assert.False(t, result.Created, "updated vote should have Created=false")
 }
 
 func TestUpsertVote_SessionNotFound(t *testing.T) {
@@ -84,6 +85,26 @@ func TestUpsertVote_SessionNotFound(t *testing.T) {
 
 	require.Error(t, err)
 	assert.ErrorIs(t, err, domain.ErrNotFound)
+}
+
+func TestUpsertVote_EmptySessionID(t *testing.T) {
+	svc := vote.NewVoteService(&mocks.VoteRepositoryMock{}, &mocks.SessionRepositoryMock{})
+	input := domain.UpsertVoteInput{SessionID: "", ProductID: "p1", VoteType: domain.Like}
+
+	_, err := svc.UpsertVote(context.Background(), input)
+
+	require.Error(t, err)
+	assert.ErrorIs(t, err, domain.ErrBadRequest)
+}
+
+func TestUpsertVote_EmptyProductID(t *testing.T) {
+	svc := vote.NewVoteService(&mocks.VoteRepositoryMock{}, &mocks.SessionRepositoryMock{})
+	input := domain.UpsertVoteInput{SessionID: "s1", ProductID: "", VoteType: domain.Like}
+
+	_, err := svc.UpsertVote(context.Background(), input)
+
+	require.Error(t, err)
+	assert.ErrorIs(t, err, domain.ErrBadRequest)
 }
 
 func TestUpsertVote_InvalidVoteType(t *testing.T) {
@@ -125,8 +146,8 @@ func TestUpsertVote_RepoError(t *testing.T) {
 		},
 	}
 	voteRepo := &mocks.VoteRepositoryMock{
-		UpsertFn: func(ctx context.Context, v *domain.Vote) error {
-			return dbErr
+		UpsertFn: func(ctx context.Context, v *domain.Vote) (bool, error) {
+			return false, dbErr
 		},
 	}
 

@@ -38,6 +38,7 @@ func TestUpsertVote_Created(t *testing.T) {
 				VoteType:  input.VoteType,
 				CreatedAt: now,
 				UpdatedAt: now,
+				Created:   true,
 			}, nil
 		},
 	}
@@ -63,6 +64,7 @@ func TestUpsertVote_Updated(t *testing.T) {
 				VoteType:  input.VoteType,
 				CreatedAt: past,
 				UpdatedAt: time.Now().UTC(),
+				Created:   false,
 			}, nil
 		},
 	}
