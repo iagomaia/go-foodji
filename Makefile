@@ -12,9 +12,6 @@ build:
 test:
 	go test ./... -v -race -count=1
 
-lint:
-	golangci-lint run ./...
-
 swag:
 	$(SWAG) init -g cmd/api/main.go --output docs --outputTypes go,yaml
 
