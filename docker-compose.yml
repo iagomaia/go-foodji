@@ -1,0 +1,13 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: foodji-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: foodji
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:

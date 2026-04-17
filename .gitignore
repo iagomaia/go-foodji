@@ -1,0 +1,12 @@
+# Binaries
+bin/
+
+# Environment
+.env
+
+# Go test cache
+*.test
+
+# OS
+.DS_Store
+Thumbs.db
