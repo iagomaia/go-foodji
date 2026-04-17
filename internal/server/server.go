@@ -56,11 +56,8 @@ func (s *Server) Run() error {
 	})
 
 	if s.cfg.AppEnv == "development" || s.cfg.AppEnv == "local" {
-		swaggerHost := "localhost:" + s.cfg.AppPort
-		if s.cfg.AppEnv == "development" {
-			swaggerHost = "foodji-tech-challenge-yg2vj.ondigitalocean.app"
-		}
-		docs.SwaggerInfo.Host = swaggerHost
+		docs.SwaggerInfo.Host = s.cfg.SwaggerBaseURL
+		docs.SwaggerInfo.Schemes = []string{s.cfg.SwaggerScheme}
 
 		r.GET("/playground/*any", ginswagger.WrapHandler(swaggerfiles.Handler,
 			ginswagger.URL("/playground/doc.json"),
