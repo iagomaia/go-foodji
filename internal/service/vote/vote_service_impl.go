@@ -3,11 +3,9 @@ package vote
 import (
 	"context"
 	"fmt"
-	"slices"
-	"time"
-
 	"github.com/iagomaia/go-foodji/internal/domain"
 	"github.com/iagomaia/go-foodji/internal/repository"
+	"slices"
 )
 
 type voteService struct {
@@ -32,16 +30,13 @@ func (s *voteService) UpsertVote(ctx context.Context, input domain.UpsertVoteInp
 		return nil, fmt.Errorf("upsert vote: %w", err)
 	}
 
-	now := time.Now().UTC()
 	vote := &domain.Vote{
 		SessionID: input.SessionID,
 		ProductID: input.ProductID,
 		VoteType:  input.VoteType,
-		CreatedAt: now,
-		UpdatedAt: now,
 	}
 
-	_, err = s.voteRepo.Upsert(ctx, vote)
+	err = s.voteRepo.Upsert(ctx, vote)
 	if err != nil {
 		return nil, fmt.Errorf("upsert vote: %w", err)
 	}

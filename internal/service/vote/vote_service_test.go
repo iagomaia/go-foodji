@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/iagomaia/go-foodji/internal/domain"
 	"github.com/iagomaia/go-foodji/internal/service/vote"
@@ -21,9 +22,12 @@ func TestUpsertVote_CreatesNewVote(t *testing.T) {
 		},
 	}
 	voteRepo := &mocks.VoteRepositoryMock{
-		UpsertFn: func(ctx context.Context, v *domain.Vote) (bool, error) {
+		UpsertFn: func(ctx context.Context, v *domain.Vote) error {
+			now := time.Now().UTC()
 			v.ID = "vote-1"
-			return true, nil
+			v.CreatedAt = now
+			v.UpdatedAt = now
+			return nil
 		},
 	}
 
@@ -47,8 +51,12 @@ func TestUpsertVote_UpdatesExistingVote(t *testing.T) {
 		},
 	}
 	voteRepo := &mocks.VoteRepositoryMock{
-		UpsertFn: func(ctx context.Context, v *domain.Vote) (bool, error) {
-			return false, nil
+		UpsertFn: func(ctx context.Context, v *domain.Vote) error {
+			now := time.Now().UTC()
+			v.ID = "vote-1"
+			v.CreatedAt = now
+			v.UpdatedAt = now.Add(time.Minute)
+			return nil
 		},
 	}
 
@@ -117,8 +125,8 @@ func TestUpsertVote_RepoError(t *testing.T) {
 		},
 	}
 	voteRepo := &mocks.VoteRepositoryMock{
-		UpsertFn: func(ctx context.Context, v *domain.Vote) (bool, error) {
-			return false, dbErr
+		UpsertFn: func(ctx context.Context, v *domain.Vote) error {
+			return dbErr
 		},
 	}
 
