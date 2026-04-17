@@ -70,7 +70,6 @@ This rewrites `docs/swagger.yaml` and `docs/docs.go` from source annotations.
 | `make start`       | Run the API with `go run`                        |
 | `make build`       | Compile binary to `bin/api`                      |
 | `make test`        | Run all tests with race detection                |
-| `make lint`        | Run `golangci-lint`                              |
 | `make swag`        | Regenerate `docs/swagger.yaml` and `docs/docs.go` |
 | `make docker-up`   | Start MongoDB via Docker Compose                 |
 | `make docker-down` | Stop Docker Compose containers                   |
