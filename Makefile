@@ -1,6 +1,7 @@
-.PHONY: start build test lint docker-up docker-down
+.PHONY: start build test lint docker-up docker-down swag
 
 BIN := bin/api
+SWAG := $(shell go env GOPATH)/bin/swag
 
 start:
 	go run ./cmd/api
@@ -13,6 +14,9 @@ test:
 
 lint:
 	golangci-lint run ./...
+
+swag:
+	$(SWAG) init -g cmd/api/main.go --output docs --outputTypes go,yaml
 
 docker-up:
 	docker compose up -d

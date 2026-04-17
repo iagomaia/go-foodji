@@ -43,16 +43,35 @@ make test
 
 Tests run with the race detector enabled. All tests are unit tests — no database required.
 
+## Swagger UI
+
+When `APP_ENV=development` (the default), the Swagger UI is available at:
+
+```
+http://localhost:8080/playground/index.html
+```
+
+It is **not registered** in production (`APP_ENV=production`).
+
+To regenerate the OpenAPI spec after changing handler annotations:
+
+```bash
+make swag
+```
+
+This rewrites `docs/swagger.yaml` and `docs/docs.go` from source annotations.
+
 ## Makefile targets
 
-| Target        | Description                          |
-|---------------|--------------------------------------|
-| `make start`  | Run the API with `go run`            |
-| `make build`  | Compile binary to `bin/api`          |
-| `make test`   | Run all tests with race detection    |
-| `make lint`   | Run `golangci-lint`                  |
-| `make docker-up`   | Start MongoDB via Docker Compose |
-| `make docker-down` | Stop Docker Compose containers   |
+| Target             | Description                                      |
+|--------------------|--------------------------------------------------|
+| `make start`       | Run the API with `go run`                        |
+| `make build`       | Compile binary to `bin/api`                      |
+| `make test`        | Run all tests with race detection                |
+| `make lint`        | Run `golangci-lint`                              |
+| `make swag`        | Regenerate `docs/swagger.yaml` and `docs/docs.go` |
+| `make docker-up`   | Start MongoDB via Docker Compose                 |
+| `make docker-down` | Stop Docker Compose containers                   |
 
 ---
 

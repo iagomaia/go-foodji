@@ -20,6 +20,11 @@ func statusFromError(err error) int {
 	return http.StatusInternalServerError
 }
 
+// ErrorResponse is the standard error envelope returned by all endpoints.
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
 func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
 }

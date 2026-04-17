@@ -1,0 +1,180 @@
+basePath: /api/v1
+definitions:
+  domain.Session:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.UpsertVoteInput:
+    properties:
+      product_id:
+        type: string
+      session_id:
+        type: string
+      vote_type:
+        $ref: '#/definitions/domain.VoteType'
+    required:
+    - product_id
+    - session_id
+    - vote_type
+    type: object
+  domain.Vote:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      product_id:
+        type: string
+      session_id:
+        type: string
+      updated_at:
+        type: string
+      vote_type:
+        $ref: '#/definitions/domain.VoteType'
+    type: object
+  domain.VoteReportItem:
+    properties:
+      dislike_count:
+        type: integer
+      dislike_ratio:
+        type: number
+      like_count:
+        type: integer
+      like_ratio:
+        type: number
+      product_id:
+        type: string
+    type: object
+  domain.VoteType:
+    enum:
+    - like
+    - dislike
+    type: string
+    x-enum-varnames:
+    - Like
+    - Dislike
+  handler.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    name: go-foodji
+    url: https://github.com/iagomaia/go-foodji
+  description: REST API for managing product voting sessions.
+  license:
+    name: MIT
+  title: go-foodji API
+  version: "1.0"
+paths:
+  /sessions:
+    post:
+      description: Creates a new voting session
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Session'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Create a session
+      tags:
+      - sessions
+  /votes:
+    put:
+      consumes:
+      - application/json
+      description: Registers or updates a vote for a product within a session. Returns
+        201 on creation, 200 on update.
+      parameters:
+      - description: Vote payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpsertVoteInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Vote'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Vote'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Upsert a vote
+      tags:
+      - votes
+  /votes/report:
+    get:
+      description: Aggregates like/dislike counts and ratios for every product across
+        all sessions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.VoteReportItem'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Vote report
+      tags:
+      - votes
+  /votes/sessions/{session_id}:
+    get:
+      description: Returns all votes cast within a given session
+      parameters:
+      - description: Session ID
+        in: path
+        name: session_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Vote'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: List votes for a session
+      tags:
+      - votes
+schemes:
+- http
+swagger: "2.0"

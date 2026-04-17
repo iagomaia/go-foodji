@@ -11,9 +11,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/iagomaia/go-foodji/docs"
 	"github.com/iagomaia/go-foodji/internal/config"
 	"github.com/iagomaia/go-foodji/internal/handler"
 	"github.com/iagomaia/go-foodji/internal/middleware"
+	swaggerfiles "github.com/swaggo/files"
+	ginswagger "github.com/swaggo/gin-swagger"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
@@ -51,6 +54,13 @@ func (s *Server) Run() error {
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
+
+	if s.cfg.AppEnv == "development" || s.cfg.AppEnv == "local" {
+		r.GET("/playground/*any", ginswagger.WrapHandler(swaggerfiles.Handler,
+			ginswagger.URL("/playground/doc.json"),
+		))
+		s.log.Info("swagger UI enabled", slog.String("path", "/playground/index.html"))
+	}
 
 	v1 := r.Group("/api/v1")
 	s.sessionHandler.RegisterRoutes(v1)

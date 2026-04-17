@@ -1,3 +1,17 @@
+// @title           go-foodji API
+// @version         1.0
+// @description     REST API for managing product voting sessions.
+
+// @contact.name    go-foodji
+// @contact.url     https://github.com/iagomaia/go-foodji
+
+// @license.name    MIT
+
+// @host            localhost:8080
+// @BasePath        /api/v1
+
+// @schemes         http
+
 package main
 
 import (

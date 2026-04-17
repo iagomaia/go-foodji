@@ -20,6 +20,14 @@ func (h *SessionHandler) RegisterRoutes(rg *gin.RouterGroup) {
 	sessions.POST("", h.create)
 }
 
+// create godoc
+// @Summary      Create a session
+// @Description  Creates a new voting session
+// @Tags         sessions
+// @Produce      json
+// @Success      201  {object}  domain.Session
+// @Failure      500  {object}  ErrorResponse
+// @Router       /sessions [post]
 func (h *SessionHandler) create(c *gin.Context) {
 	createdSession, err := h.svc.CreateSession(c.Request.Context())
 	if err != nil {
