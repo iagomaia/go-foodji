@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/iagomaia/go-foodji/docs"
+	"github.com/iagomaia/go-foodji/docs"
 	"github.com/iagomaia/go-foodji/internal/config"
 	"github.com/iagomaia/go-foodji/internal/handler"
 	"github.com/iagomaia/go-foodji/internal/middleware"
@@ -56,6 +56,12 @@ func (s *Server) Run() error {
 	})
 
 	if s.cfg.AppEnv == "development" || s.cfg.AppEnv == "local" {
+		swaggerHost := "localhost:" + s.cfg.AppPort
+		if s.cfg.AppEnv == "development" {
+			swaggerHost = "foodji-tech-challenge-yg2vj.ondigitalocean.app"
+		}
+		docs.SwaggerInfo.Host = swaggerHost
+
 		r.GET("/playground/*any", ginswagger.WrapHandler(swaggerfiles.Handler,
 			ginswagger.URL("/playground/doc.json"),
 		))

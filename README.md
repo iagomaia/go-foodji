@@ -45,7 +45,9 @@ Tests run with the race detector enabled. All tests are unit tests — no databa
 
 ## Swagger UI
 
-When `APP_ENV=development` (the default), the Swagger UI is available at:
+**Live playground:** [https://foodji-tech-challenge-yg2vj.ondigitalocean.app/playground/index.html](https://foodji-tech-challenge-yg2vj.ondigitalocean.app/playground/index.html)
+
+When running locally (`APP_ENV=development` or `APP_ENV=local`), the Swagger UI is also available at:
 
 ```
 http://localhost:8080/playground/index.html
