@@ -42,7 +42,7 @@ func main() {
 
 	ctx := context.Background()
 
-	shutdownTracer, err := telemetry.New(ctx, "go-foodji")
+	shutdownTracer, err := telemetry.New(ctx, "go-foodji", cfg.AppEnv)
 	if err != nil {
 		log.Error("init telemetry", "error", err)
 	} else {
